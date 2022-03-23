@@ -23,7 +23,7 @@ USE_FAMITRACKER = 0
 VT_SYSTEM_TYPE = 0; 0 for VT02, 1 for VT03, 2 for VT32, 3 for VT369
 VT_412C_BANKSWITCH = 0; 0 to disable, 1 to enable. Only applies to VT02 and VT03 consoles
 VT_MULTICART = 0; 0 to disable, 1 to enable.
-VRT_PRG_SIZE = 256;
+VRT_PRG_SIZE = 256; 128 for 2MB, 256 for 4MB, 512 for 8MB, 1024 for 16MB, 2048 for 32MB, 4096 for 64MB
 
 
 
