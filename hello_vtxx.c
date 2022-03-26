@@ -49,6 +49,8 @@ void main (void) {
 	
 	ppu_off(); // screen off
 
+	pal_bg(palette_bg);
+
     vram_adr(NTADR_A(4,4));
     vram_write(text, sizeof(text));
 

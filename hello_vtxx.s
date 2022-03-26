@@ -11,6 +11,7 @@
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 	.macpack	longbranch
 	.forceimport	__STARTUP__
+	.import		_pal_bg
 	.import		_ppu_wait_nmi
 	.import		_ppu_off
 	.import		_ppu_on_all
@@ -271,6 +272,12 @@ L0002:	rts
 ; ppu_off(); // screen off
 ;
 	jsr     _ppu_off
+;
+; pal_bg(palette_bg);
+;
+	lda     #<(_palette_bg)
+	ldx     #>(_palette_bg)
+	jsr     _pal_bg
 ;
 ; vram_adr(NTADR_A(4,4));
 ;

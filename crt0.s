@@ -422,6 +422,9 @@ detectNTSC:
 	lda #$00 ;PRG bank #0 at $8000, back to basic
 	jsr _set_prg_8000
 .endif	
+	; Initialize LCD display
+	
+	; end LCD initialization
 	jmp _main			;no parameters
 	
 
