@@ -50,6 +50,10 @@ unsigned char __fastcall__ get_prg_8000(void);
 // bank_id: The bank to switch to.
 void __fastcall__ set_prg_a000(unsigned char bank_id);
 
+// Get the current PRG bank at $a000-bfff.
+// returns: The current bank.
+unsigned char __fastcall__ get_prg_a000(void);
+
 
 // Changes a portion of the tilsets
 // The plan was to NOT use these. Use the irq system instead

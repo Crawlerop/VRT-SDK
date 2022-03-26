@@ -3,6 +3,7 @@
 .segment "ZEROPAGE"
 	;A12_INVERT: .res 1
 	BP_BANK_8000: .res 1
+	BP_BANK_A000: .res 1
     mmc3_8000_PRG:	.res 1
 	mmc3_8001_PRG:	.res 1
 	mmc3_8000_CHR:	.res 1
@@ -12,14 +13,14 @@
 	irq_done:		.res 1	
 	
     ;.exportzp A12_INVERT, BP_BANK_8000, mmc3_8000_PRG, mmc3_8001_PRG, mmc3_8000_CHR, mmc3_8001_CHR
-	.exportzp BP_BANK_8000, mmc3_8000_PRG, mmc3_8001_PRG, mmc3_8000_CHR, mmc3_8001_CHR
+	.exportzp BP_BANK_8000, BP_BANK_A000, mmc3_8000_PRG, mmc3_8001_PRG, mmc3_8000_CHR, mmc3_8001_CHR
 	.exportzp mmc3_ptr, mmc3_index, irq_done
 	;.export _A12_INVERT = A12_INVERT
 		
 .segment "STARTUP"
 ;needs to be mapped to the fixed bank
 
-.export _set_prg_8000, _get_prg_8000, _set_prg_a000
+.export _set_prg_8000, _get_prg_8000, _set_prg_a000, _get_prg_a000
 .export _set_chr_mode_0, _set_chr_mode_1, _set_chr_mode_2, _set_chr_mode_3
 .export _set_chr_mode_4, _set_chr_mode_5
 
@@ -48,10 +49,16 @@ _get_prg_8000:
     lda BP_BANK_8000
 	ldx #0
     rts
+
+_get_prg_a000:
+    lda BP_BANK_A000
+	ldx #0
+    rts
 	
 	
 ; sets the bank at $a000-bfff
 _set_prg_a000:
+	sta BP_BANK_A000
 	sta mmc3_8001_PRG
 	lda #(7 | A12_INVERT)
 	sta mmc3_8000_PRG
