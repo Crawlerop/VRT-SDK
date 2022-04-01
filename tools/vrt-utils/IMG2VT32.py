@@ -116,6 +116,9 @@ if __name__ == "__main__":
     max_tiles = int(sys.argv[2])
     tile_start_offset = int(sys.argv[3], 16)
     chr_start_offset = int(sys.argv[4], 16)
+    irq_offset = int(sys.argv[5])
+
+    assert not (max_tiles % 64)
 
     # Workarounds to use dithering in adaptive palettes
     img_v.load()
@@ -152,7 +155,12 @@ if __name__ == "__main__":
 
     lines_c = []        
     nt_data = []        
-    irq_data = [0xf9, chr_start_offset+0x00, 0xfa, chr_start_offset+0x01, 0xfb, chr_start_offset+0x02, 0xfc, chr_start_offset+0x03]
+    irq_data = []
+
+    for o in range(max_tiles//64):
+        irq_data.extend([0xf9+o+irq_offset, o])
+    #irq_data = [0xf9, chr_start_offset+0x00, 0xfa, chr_start_offset+0x01, 0xfb, chr_start_offset+0x02, 0xfc, chr_start_offset+0x03]
+    
 
     c_p = 0+chr_start_offset
     s_l = 0
@@ -160,11 +168,10 @@ if __name__ == "__main__":
     lines = 0
 
     y = 0
-    while y<(img.height/8):
+    while y<(img.height/8):              
         x = 0
-        sofs = len(nt_data)
-        while x<(img.width/8):
-            #print(((img.width//8)*y)+x, x)
+        sofs = len(nt_data)        
+        while x<(img.width/8):                
             p_nt = nt[((img.width//8)*y)+x]            
             if (px[p_nt] not in lines_c) or not S_COMPRESS:                                
                 lines_c.append(px[p_nt])
@@ -174,21 +181,21 @@ if __name__ == "__main__":
                 ni = lines_c.index(px[p_nt])
             assert ni >= 0 and ni <= 0xff
             
-            nt_data.append(ni+tile_start_offset)
-            if len(lines_c) >= max_tiles:            
-                #print(x)
-                #if (x > 0): s_l += 1
+            nt_data.append(ni+tile_start_offset)            
+            if len(lines_c) >= max_tiles:                 
                 x = -1
-                c_p += 4                
-                irq_data.extend([(s_l*8)-1, 0xf9, c_p, 0xfa, c_p+1, 0xfb, c_p+2, 0xfc, c_p+3])
+                c_p += max_tiles//64              
+                irq_data.append((s_l*8)-1)
+                for p in range(max_tiles//64):
+                    irq_data.extend([0xf9+p+irq_offset, p+c_p])
                 s_l = -1
-                #print(hex(sofs))
+
                 nt_data = nt_data[:sofs]
                 zz_data = b"".join(lines_c)                
                 ch_b.append(zz_data)
                 lines_c.clear()
             x += 1
-        y += 1
+        y += 1        
         s_l += 1
 
     if len(lines_c) > 0:
