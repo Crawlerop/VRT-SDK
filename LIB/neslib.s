@@ -20,8 +20,10 @@
 	.export _scroll,_split
 	.export _bank_spr,_bank_bg
 	.export _vram_read,_vram_write
+	.if (USE_FAMITRACKER)
 	.export _music_play,_music_stop,_music_pause
 	.export _sfx_play,_sample_play
+	.endif
 	.export _pad_poll,_pad_trigger,_pad_state
 	.export _rand8,_rand16,_set_rand
 	.export _vram_adr,_vram_put,_vram_fill,_vram_inc,_vram_unrle
@@ -564,11 +566,8 @@ nmi:
 	sta <FRAME_CNT2
 
 @skipNtsc:
-	.if(!USE_FAMITRACKER)
-	jmp @NoAudio	
-	.endif
-
 ;switch the music into the prg bank first
+.if (USE_FAMITRACKER)
 	lda BP_BANK_8000 ;save current prg bank
 	pha
 	lda #SOUND_BANK
@@ -577,7 +576,8 @@ nmi:
 	pla
 	sta BP_BANK_8000 ;restore prg bank
 	jsr _set_prg_8000
-@NoAudio:
+.endif
+@End_NMI:
 	;jsr _multi_hooks
 
 	pla
@@ -1322,6 +1322,7 @@ _vram_write:
 ;void __fastcall__ music_play(unsigned char song);
 ;a = song #
 
+.if (USE_FAMITRACKER)
 _music_play:
 	tax
 	lda BP_BANK_8000 ;save current prg bank
@@ -1335,10 +1336,10 @@ _music_play:
 	sta BP_BANK_8000 ;restore prg bank
 	jmp _set_prg_8000
 	;rts
-
+.endif
 
 ;void __fastcall__ music_stop(void);
-
+.if (USE_FAMITRACKER)
 _music_stop:
 	lda BP_BANK_8000 ;save current prg bank
 	pha
@@ -1350,12 +1351,12 @@ _music_stop:
 	sta BP_BANK_8000 ;restore prg bank
 	jmp _set_prg_8000
 	;rts
-
-
+.endif
 
 ;void __fastcall__ music_pause(unsigned char pause);
 ;a = pause or not
 
+.if (USE_FAMITRACKER)
 _music_pause:
 	tax
 	lda BP_BANK_8000 ;save current prg bank
@@ -1369,6 +1370,7 @@ _music_pause:
 	sta BP_BANK_8000 ;restore prg bank
 	jmp _set_prg_8000
 	;rts
+.endif
 
 	
 
@@ -1376,6 +1378,7 @@ _music_pause:
 
 ;void __fastcall__ sfx_play(unsigned char sound,unsigned char channel);
 
+.if (USE_FAMITRACKER)
 _sfx_play:
 
 .if(FT_SFX_ENABLE)
@@ -1398,19 +1401,18 @@ _sfx_play:
 	sta BP_BANK_8000 ;restore prg bank
 	jmp _set_prg_8000
 	;rts
-
 @sfxPriority:
-
 	.byte FT_SFX_CH0,FT_SFX_CH1,FT_SFX_CH2,FT_SFX_CH3
-	
 .else
 	rts
 .endif
 
+.endif
 
 ;void __fastcall__ sample_play(unsigned char sample);
 ;a = sample #
 
+.if (USE_FAMITRACKER)
 .if(FT_DPCM_ENABLE)
 _sample_play:
 	tax
@@ -1429,6 +1431,7 @@ _sample_play:
 .else
 _sample_play:
 	rts
+.endif
 .endif
 
 

@@ -19,7 +19,7 @@ FT_NTSC_SUPPORT	= 1		;undefine to exclude NTSC support
 FT_DPCM_ENABLE  = 1		;undefine to exclude all DMC code
 FT_SFX_ENABLE   = 1		;undefine to exclude all sound effects code
 
-USE_FAMITRACKER = 0
+USE_FAMITRACKER = 0; Enable FamiTone
 VT_SYSTEM_TYPE = 0; 0 for VT02, 1 for VT03, 2 for VT32, 3 for VT369
 VT_412C_BANKSWITCH = 0; 0 to disable, 1 to enable. Only applies to VT02 and VT03 consoles
 VT_MULTICART = 0; 0 to disable, 1 to enable.
@@ -439,7 +439,9 @@ detectNTSC:
 
 	
 .segment "CODE"	
+.if (USE_FAMITRACKER)
 	.include "MUSIC/famitone2.s"
+.endif
 ; When music files get very big, it's probably best to
 ; split the songs into multiple swapped banks
 ; the music code itself is in the regular CODE banks.
@@ -447,12 +449,13 @@ detectNTSC:
 	
 .segment "BANK12"	
 	
+.if (USE_FAMITRACKER)	
 music_data:
 	.include "MUSIC/TestMusic3.s"
 
 sounds_data:
 	.include "MUSIC/SoundFx.s"
-
+.endif
 
 	
 	
