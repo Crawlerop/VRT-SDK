@@ -20,6 +20,7 @@ FT_DPCM_ENABLE  = 1		;undefine to exclude all DMC code
 FT_SFX_ENABLE   = 1		;undefine to exclude all sound effects code
 
 USE_FAMITRACKER = 0; Enable FamiTone
+USE_FAMISTUDIO = 1; Enable FamiStudio
 VT_SYSTEM_TYPE = 0; 0 for VT02, 1 for VT03, 2 for VT32, 3 for VT369
 VT_412C_BANKSWITCH = 0; 0 to disable, 1 to enable. Only applies to VT02 and VT03 consoles
 VT_MULTICART = 0; 0 to disable, 1 to enable.
@@ -422,6 +423,24 @@ detectNTSC:
 	lda #$00 ;PRG bank #0 at $8000, back to basic
 	jsr _set_prg_8000
 .endif	
+
+.if (USE_FAMISTUDIO)
+	lda #SOUND_BANK ;swap the music in place before using
+					;SOUND_BANK is defined above
+	jsr _set_prg_8000
+	
+	ldx #<music_data
+	ldy #>music_data
+	lda <NTSC_MODE
+	jsr famistudio_init
+
+	ldx #<sounds_data
+	ldy #>sounds_data
+	jsr famistudio_sfx_init
+	
+	lda #$00 ;PRG bank #0 at $8000, back to basic
+	jsr _set_prg_8000
+.endif	
 	; Initialize LCD display
 	
 	; end LCD initialization
@@ -439,8 +458,15 @@ detectNTSC:
 
 	
 .segment "CODE"	
+.if (USE_FAMITRACKER && USE_FAMISTUDIO) 
+.error "Famitone and Famistudio should not be used simultaneously."
+.endif
+
 .if (USE_FAMITRACKER)
 	.include "MUSIC/famitone2.s"
+.endif
+.if (USE_FAMISTUDIO)
+	.include "MUSIC/FAMISTUDIO/famistudio.s"
 .endif
 ; When music files get very big, it's probably best to
 ; split the songs into multiple swapped banks
@@ -457,7 +483,13 @@ sounds_data:
 	.include "MUSIC/SoundFx.s"
 .endif
 
-	
+.if (USE_FAMISTUDIO)	
+music_data:
+	.include "MUSIC/MUS.s"
+
+sounds_data:
+	.include "MUSIC/SFX.s"
+.endif	
 	
 ;.segment "SAMPLES"
 ;	.incbin "MUSIC/BassDrum.dmc"
