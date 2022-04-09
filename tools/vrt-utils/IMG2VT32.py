@@ -158,7 +158,7 @@ if __name__ == "__main__":
     irq_data = []
 
     for o in range(max_tiles//64):
-        irq_data.extend([0xf9+o+irq_offset, o])
+        irq_data.extend([0xf9+o+irq_offset, o+chr_start_offset])
     #irq_data = [0xf9, chr_start_offset+0x00, 0xfa, chr_start_offset+0x01, 0xfb, chr_start_offset+0x02, 0xfc, chr_start_offset+0x03]
     
 
